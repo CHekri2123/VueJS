@@ -1,58 +1,120 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+
+  <v-form ref="form" v-model="valid" lazy-validation>
+    <v-card width="600px" elevation="0">
+      <v-card-title class="justify-center">Login Form</v-card-title>
+      <v-row justify="center" align="center">
+        <v-col>
+          <p class="text-end">Name</p>
+        </v-col>
+        <v-col>
+          <v-text-field outlined v-model="name" :rules="nameRules" :counter="10" label="Enter your name" required>
+          </v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <p class="text-end">Email</p>
+        </v-col>
+        <v-col>
+          <v-text-field outlined v-model="email" :rules="emailRules" label="Enter your email" required>
+          </v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <p class="text-end">Ph No.</p>
+        </v-col>
+        <v-col>
+          <v-text-field outlined v-model="phone" :rules="phoneRules" label="Enter your mobile no." required>
+          </v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <p class="text-end">Gender</p>
+        </v-col>
+        <v-col>
+          <v-radio-group v-model="gender" row>
+            <v-radio label="Male" value="Male"></v-radio>
+            <v-radio label="Female" value="Female"></v-radio>
+          </v-radio-group>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <p class="text-end">city</p>
+        </v-col>
+        <v-col>
+          <v-select v-model="city" :items="cityNames" label="Select the city"></v-select>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <p class="text-end">Hobbies</p>
+        </v-col>
+        <v-col>
+          <v-row>
+            <v-col>
+              <v-checkbox v-model="Hobbies" label="Cricket" value="Cricket" hide-details></v-checkbox>
+              <v-checkbox v-model="Hobbies" label="Badminton" value="Badminton" hide-details></v-checkbox>
+              <v-checkbox v-model="Hobbies" label="Football" value="Football" hide-details></v-checkbox>
+            </v-col>
+            <v-col>
+              <v-checkbox v-model="Hobbies" label="Base-ball" value="Base-ball" hide-details></v-checkbox>
+              <v-checkbox v-model="Hobbies" label="Reading" value="Reading" hide-details></v-checkbox>
+              <v-checkbox v-model="Hobbies" label="Videogames" value="Videogames" hide-details></v-checkbox>
+            </v-col>
+          </v-row>
+        </v-col>
+      </v-row>
+
+      <v-card-actions class="justify-center">
+        <v-btn color="primary" :disabled="!valid" @click="validate">Submit</v-btn>
+      </v-card-actions>
+    </v-card>
+
+  </v-form>
+
 </template>
+
 
 <script>
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
+
+  data: () => ({
+    valid: true,
+    name: '',
+    nameRules: [
+      v => !!v || 'Name is required',
+      v => v.length <= 10 || 'Name must be less than 10 characters',
+    ],
+    email: '',
+    emailRules: [
+      v => !!v || 'Email is required',
+      v => /.+@.+/.test(v) || 'E-mail must be valid'
+    ],
+    phone: '',
+    phoneRules: [v => !!v || 'Phone no. is required',
+    v => v.length >= 10 || 'phone number must not be less than 10 characters',],
+    gender: '',
+    city: '',
+    cityNames: ['Chennai', 'Bangalore', 'Delhi'],
+    Hobbies: ['Cricket', 'Badminton', 'Football', 'Base-ball', 'Reading', 'Videogames']
+  }),
+  methods: {
+    validate() {
+      this.$refs.form.validate()
+      const array = {
+        name: this.name,
+        email: this.email,
+        phone: this.phone,
+        gender: this.gender,
+        city: this.city,
+        Hobbies: this.Hobbies,
+      }
+      console.log(JSON.stringify(array))
+    }
+  },
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
