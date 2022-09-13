@@ -15,7 +15,7 @@
             <v-card-text>
               <v-row>
                 <v-col cols="12" sm="6" md="4">
-                  <v-text-field v-model="name" :rules="nameRules" outlined label="Enter your name" required>
+                  <v-text-field v-model="name" outlined label="Enter your name" required>
                   </v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
@@ -45,7 +45,7 @@
         </thead>
         <tbody>
           <tr v-for="row in table" :key="row.name">
-            <td>{{row.name}}</td>
+            <td>{{row.name | truncate(10)}}</td>
             <td>{{row.email}}</td>
             <td>
               <v-btn fab class="mb-2" small color="cyan" dark @click="update(row)">
@@ -83,6 +83,13 @@ export default {
       flag: false,
       boolValue: true,
       submitButton: true,
+    }
+  },
+  filters: {
+    truncate: function (name, num) {
+      const reqdString =
+        name.split("").slice(0, num).join("");
+      return reqdString;
     }
   },
   mounted() {
