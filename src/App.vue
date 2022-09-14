@@ -1,20 +1,20 @@
 <template>
   <v-app>
     <v-main>
-      <HelloWorld/>
+      <EmployeeData />
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
+import EmployeeData from './components/Employee.vue';
 
 export default {
   name: 'App',
 
   components: {
-    HelloWorld,
-  },
+    EmployeeData,
+},
 
   data: () => ({
     //
