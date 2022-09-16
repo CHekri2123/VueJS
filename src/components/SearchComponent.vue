@@ -4,16 +4,16 @@
             <v-card-title>Search Employee</v-card-title>
             <v-row>
                 <v-col>
-                    <v-text-field outlined v-model="searchField" label="Search"></v-text-field>
+                    <v-text-field outlined v-model="searchField" v-on:keyup="searchEmployeeData(searchField)" label="Search"></v-text-field>
                 </v-col>
                 <v-col>
-                    <v-btn @click="searchEmployeeData()" right>
+                    <!-- <v-btn @click="searchEmployeeData()" right>
                         search
-                    </v-btn>
+                    </v-btn> -->
                 </v-col>
             </v-row>
         </v-card>
-    </v-container>
+    </v-container>  
 </template>
 <script>
 import axios from 'axios'
@@ -23,7 +23,7 @@ export default {
     name: 'SearchComponent',
     data() {
         return {
-
+            searchField: '',
         }
     },
     methods: {

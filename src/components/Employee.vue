@@ -23,6 +23,10 @@
                   <v-text-field v-model="email" :rules="emailRules" outlined label="Enter your email" required>
                   </v-text-field>
                 </v-col>
+                <v-col cols="12" sm="6" md="4">
+                  <v-text-field v-model="salary" outlined v-addCommas="salary" label="Enter Salary">
+                  </v-text-field>
+                </v-col>
               </v-row>
               <v-btn color="success" v-model="submitButton" @click="submit()" v-if="boolValue">
                 Submit
@@ -38,15 +42,24 @@
         <v-simple-table fixed-header>
           <thead>
             <tr>
-              <th class="text-left">Name</th>
-              <th class="text-left">Email</th>
+              <th class="text-left">Name <v-icon v-model="searchNameAscending" @click="searchNameAscendingFunction()">
+                  mdi-arrow-down</v-icon>
+                <v-icon v-model="searchNameDescending" @click="searchNameDescendingFunction()">mdi-arrow-up</v-icon>
+              </th>
+              <th class="text-left">Email <v-icon v-model="searchEmailAscending"
+                  @click="searchEmailAscendingFunction()">
+                  mdi-arrow-down</v-icon>
+                <v-icon v-model="searchEmailDescending" @click="searchEmailDescendingFunction()">mdi-arrow-up</v-icon>
+              </th>
+              <th class="text-left">Salary</th>
               <th class="text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="row in table" :key="row.name">
-              <td>{{row.name | truncate(10)}}</td>
+              <td>{{row.name}}</td>
               <td>{{row.email}}</td>
+              <td>{{row.salary}}</td>
               <td>
                 <v-btn fab class="mb-2" small color="cyan" dark @click="update(row)">
                   <v-icon small>mdi-pencil</v-icon>
@@ -64,90 +77,123 @@
 </template>
 
 <script>
-import axios from 'axios';
-import SearchComponent from './SearchComponent.vue';
+import API from '../services/api'
 var instanceOfItem;
 export default {
-    name: "EmployeeData",
-    data() {
-        return {
-            search: "",
-            nameRules: [
-                v => !!v || "Name is required",
-                v => (v && v.length <= 10) || "Name must be less than 10 characters",
-            ],
-            emailRules: [
-                v => !!v || "E-mail is required",
-                v => /.+@.+\..+/.test(v) || "E-mail must be valid",
-            ],
-            dialog: false,
-            table: "",
-            searchTable: "",
-            tableData: "",
-            flag: false,
-            boolValue: true,
-            submitButton: true,
-        };
+  name: "EmployeeData",
+  data() {
+    return {
+      salary: '',
+      searchNameAscending: '',
+      searchNameDescending: '',
+      searchEmailAscending: '',
+      searchEmailDescending: '',
+      email: '',
+      name: '',
+      valid: '',
+      search: "",
+      nameRules: [
+        v => !!v || "Name is required",
+        v => (v && v.length <= 10) || "Name must be less than 10 characters",
+      ],
+      emailRules: [
+        v => !!v || "E-mail is required",
+        v => /.+@.+\..+/.test(v) || "E-mail must be valid",
+      ],
+      dialog: false,
+      table: "",
+      searchTable: "",
+      tableData: "",
+      flag: false,
+      boolValue: true,
+      submitButton: true,
+    };
+  },
+  mounted() {
+    this.read();
+  },
+  methods: {
+    // addComma(salary) {
+    //   this.salary = salary.replace(/\D/g, "")
+    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    //   console.log(salary)
+    // },
+    read() {
+      API.get(process.env.VUE_APP_GET_LINK).then(response => {
+        // JSON responses are 
+        // automatically parsed
+        this.table = response.data;
+      });
     },
-    filters: {
-        truncate: function (name, num) {
-            const reqdString = name.split("").slice(0, num).join("");
-            return reqdString;
-        }
+    async submit() {
+      const sub = await API.post(process.env.VUE_APP_POST_LINK, {
+        name: this.name,
+        email: this.email,
+        salary: this.salary
+      });
+      console.log(sub);
+      this.read();
+      this.dialog = false;
     },
-    mounted() {
-        axios.get(`http://127.0.0.1:3333/displayData`)
-            .then(response => {
-            // JSON responses are 
-            // automatically parsed
-            this.table = response.data;
-        });
+    press() {
+      this.boolValue = true;
     },
-    methods: {
-        read() {
-            axios.get(`http://127.0.0.1:3333/displayData`).then(response => {
-                // JSON responses are 
-                // automatically parsed
-                this.table = response.data;
-            });
-        },
-        async submit() {
-            const sub = await axios.post(`http://127.0.0.1:3333/insertData`, {
-                name: this.name,
-                email: this.email
-            });
-            console.log(sub);
-            this.read();
-            this.dialog = false;
-        },
-        press() {
-            this.boolValue = true;
-        },
-        async update(row) {
-            this.boolValue = false;
-            instanceOfItem = row;
-            this.name = row.name;
-            this.email = row.email;
-            this.dialog = true;
-            this.submitButton = false;
-        },
-        async edit() {
-            instanceOfItem.name = this.name;
-            instanceOfItem.email = this.email;
-            await axios.put(`http://127.0.0.1:3333/updateData/${instanceOfItem.name}`, {
-                name: instanceOfItem.name,
-                email: instanceOfItem.email
-            });
-        },
-        async deleteData(name) {
-            await axios.delete(`http://127.0.0.1:3333/deleteData/${name}`);
-            this.read();
-        },
-        serachEmpDataReciever(value){
-            this.table = value.data
-            console.log(value)
-        },
+    async update(row) {
+      this.boolValue = false;
+      instanceOfItem = row;
+      this.name = row.name;
+      this.email = row.email;
+      this.salary = row.salary;
+      this.dialog = true;
+      this.submitButton = false;
     },
-    components: { SearchComponent }
+    async edit() {
+      instanceOfItem.name = this.name;
+      instanceOfItem.email = this.email;
+      instanceOfItem.salary = this.salary;
+      await API.put(`${process.env.VUE_APP_PUT_LINK}/${instanceOfItem.name}`, {
+        name: instanceOfItem.name,
+        email: instanceOfItem.email,
+        salary: instanceOfItem.salary
+      });
+    },
+    async deleteData(name) {
+      await API.delete(`${process.env.VUE_APP_DELETE_LINK}/${name}`);
+      this.read();
+    },
+    serachEmpDataReciever(value) {
+      this.table = value.data
+      console.log(value)
+    },
+    async searchNameAscendingFunction() {
+      console.log("Ascending Button CLicked")
+      const searchAscendingResult = await API.get(`http://127.0.0.1:3333/sortByAscending`).then(response => {
+        this.table = response.data
+      });
+      console.log(searchAscendingResult)
+    },
+    async searchEmailAscendingFunction() {
+      console.log("Ascending Button CLicked")
+      const searchEmailAscendingFunction = await API.get(`http://127.0.0.1:3333/sortByAscending`).then(response => {
+        this.table = response.data
+      });
+      console.log(searchEmailAscendingFunction)
+    },
+    async searchNameDescendingFunction() {
+      console.log("Descendng Button CLicked")
+      const searchDescendingResult = await API.get(`http://127.0.0.1:3333/sortByDescending`).then(response => {
+        this.table = response.data
+      });
+      console.log(searchDescendingResult)
+    },
+    async searchEmailDescendingFunction() {
+      console.log("Descendng Button CLicked")
+      const searchEmailDescendingFunction = await API.get(`http://127.0.0.1:3333/sortByDescending`).then(response => {
+        this.table = response.data
+      });
+      console.log(searchEmailDescendingFunction)
+    }
+  },
+
 }
 </script>
